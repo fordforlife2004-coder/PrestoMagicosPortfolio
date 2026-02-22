@@ -1,0 +1,3 @@
+ensure preston-adminmenu
+add_ace group.admin admin.menu allow
+add_principal identifier.license:YOUR_LICENSE group.admin
