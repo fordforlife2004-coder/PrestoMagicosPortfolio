@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Admin Menu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+
+    <div id="announcement" class="announcement" hidden>
+        <div class="announcement-label">Server announcement</div>
+        <div id="announcement-text" class="announcement-text"></div>
+        <div id="announcement-by" class="announcement-by"></div>
+    </div>
+
+    <div id="spectate-hint" class="spectate-hint" hidden>
+        Spectating <strong id="spectate-name"></strong> &middot; press <kbd>Backspace</kbd> to stop
+    </div>
+
+    <main id="app" class="panel" hidden>
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">P</div>
+                <div>
+                    <div class="brand-name">Admin Menu</div>
+                    <div class="brand-sub">Version 2</div>
+                </div>
+            </div>
+            <nav id="tabs" class="tabs"></nav>
+            <div id="me" class="me"></div>
+        </aside>
+        <section class="content">
+            <header class="content-head">
+                <h1 id="title">Players</h1>
+                <div class="head-right">
+                    <span id="head-meta" class="muted"></span>
+                    <button id="close" class="icon-btn" type="button" title="Close (Esc)" aria-label="Close">&times;</button>
+                </div>
+            </header>
+            <div id="view" class="view"></div>
+        </section>
+    </main>
+
+    <div id="backdrop" class="backdrop" hidden>
+        <form id="modal" class="modal" autocomplete="off"></form>
+    </div>
+
+    <div id="warning" class="warning" hidden>
+        <div class="warning-card" role="alertdialog" aria-labelledby="warning-title">
+            <div class="warning-icon">!</div>
+            <h2 id="warning-title">You have been warned by staff</h2>
+            <p id="warning-text" class="warning-text"></p>
+            <p id="warning-by" class="muted"></p>
+            <button id="warning-ok" class="btn danger" type="button">I understand</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

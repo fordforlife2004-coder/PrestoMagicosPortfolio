@@ -7,7 +7,13 @@
 ## What I've built
 simple standalone scripts
 
-## Preston Admin Menu Features
+## Preston Admin Menu v2 (new)
+An in-game admin panel where the server checks every action. It has saved bans that block rejoining, player reports, spectate, server-controlled noclip and god mode, Discord logs, and tests.
+See [preston-adminmenu](preston-adminmenu/) for screenshots, setup and everything v2 fixes from v1.
+
+![Admin Menu v2](preston-adminmenu/docs/players.png)
+
+## Preston Admin Menu v1 Features
 - /adminhelp (check perm)
 - /kick ID reason
 - /ban ID reason
