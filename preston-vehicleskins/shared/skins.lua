@@ -34,9 +34,25 @@ function S.isBlocked(config, model, hash)
     return false
 end
 
--- The type a model has to be spawned as (shared/vehicle_types.lua is loaded first).
-function S.typeFor(config, model)
-    return (config.VehicleTypes or {})[model] or KnownVehicleTypes[model] or 'automobile'
+local knownByHash = {} -- [hash function] = { [model hash] = type }
+
+-- The type a model has to be spawned as (shared/vehicle_types.lua is loaded first): Config.VehicleTypes
+-- for add-ons, the built-in list, 'train' for trains (which can't be spawned), or "automobile". Looked
+-- up by model hash (hash = GetHashKey), so another name for a helicopter's model is still a helicopter.
+function S.typeFor(config, model, hash)
+    hash = hash or function(name) return name end
+    local wanted = hash(model)
+    for name, kind in pairs(config.VehicleTypes or {}) do
+        if hash(name) == wanted then return kind end
+    end
+    local known = knownByHash[hash]
+    if not known then
+        known = {}
+        for name, kind in pairs(KnownVehicleTypes) do known[hash(name)] = kind end
+        for name in pairs(KnownTrains) do known[hash(name)] = 'train' end
+        knownByHash[hash] = known
+    end
+    return known[wanted] or 'automobile'
 end
 
 function S.isTrain(model)

@@ -65,7 +65,7 @@ RegisterNetEvent('preston-vehiclespawn:spawn', function(model, vehicleType)
     end
     -- A vehicle spawned as the wrong type is broken for everyone near it, so only trust the type
     -- the player's game sent when it matches the known one (staff may spawn unlisted add-ons).
-    if not staff and vehicleType ~= R.typeFor(Config, model) then
+    if not staff and vehicleType ~= R.typeFor(Config, model, GetHashKey) then
         return tell(src, ("%s can't be spawned here. If it's an add-on, add its type to Config.VehicleTypes."):format(model))
     end
     local wait = R.cooldownLeft(lastSpawn[src], os.time(), Config.CooldownSeconds)

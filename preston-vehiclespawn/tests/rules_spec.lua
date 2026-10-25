@@ -43,6 +43,13 @@ t.test('typeFor knows the built-in vehicles that are not cars', function()
     t.eq(R.typeFor({ VehicleTypes = { myheli = 'heli' } }, 'myheli'), 'heli', 'add-ons from the config')
     t.eq(R.isTrain('freight'), true)
     t.eq(R.isTrain('adder'), false)
+    t.eq(R.typeFor(Config, 'freight'), 'train')
+end)
+
+t.test('typeFor goes by model hash, so another name for a helicopter is still a helicopter', function()
+    local sameHash = function(name) return name == 'zz_heli' and 'h:buzzard2' or 'h:' .. name end
+    t.eq(R.typeFor(Config, 'zz_heli', sameHash), 'heli')
+    t.eq(R.typeFor(Config, 'adder', sameHash), 'automobile')
 end)
 
 t.test('the type list only uses types the server can spawn', function()

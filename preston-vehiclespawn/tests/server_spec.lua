@@ -72,8 +72,16 @@ t.test('the vehicle type must match the model', function()
     t.contains(select(2, spawn(PLAYER, 'adder', 'heli')), "adder can't be spawned here")
     t.contains(select(2, spawn(PLAYER, 'myheli', 'heli')), 'Config.VehicleTypes', 'unknown add-on helicopter')
     Config.VehicleTypes.myheli = 'heli'
-    t.eq(F.entities[(spawn(PLAYER, 'myheli', 'heli'))].vehicleType, 'heli')
+    local heli = spawn(PLAYER, 'myheli', 'heli')
+    t.eq(F.entities[heli].vehicleType, 'heli')
     Config.VehicleTypes.myheli = nil
+    F.leaveVehicle(PLAYER)
+    later()
+    F.hashAlias['zz_heli'] = 'buzzard2'
+    t.contains(select(2, spawn(PLAYER, 'zz_heli', 'automobile')), "zz_heli can't be spawned here", 'another name for a helicopter')
+    F.hashAlias['zz_train'] = 'freight'
+    t.contains(select(2, spawn(PLAYER, 'zz_train', 'automobile')), "zz_train can't be spawned here", 'another name for a train')
+    F.seat(PLAYER, heli) -- back in their last car for the tests below
 end)
 
 t.test('bad models and vehicle types are refused', function()

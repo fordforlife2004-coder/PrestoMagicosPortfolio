@@ -113,6 +113,8 @@ t.test('/spawnskin: cooldown, blocked models (by hash), and the vehicle type mus
     F.hashAlias['zz_jet'] = 'hydra'
     t.eq(select(2, spawnskin(WALKER, 'zz_jet', 'automobile')), 'zz_jet is not allowed on this server.')
     t.contains(select(2, spawnskin(WALKER, 'polmav', 'automobile')), "polmav can't be spawned here")
+    F.hashAlias['zz_heli'] = 'polmav'
+    t.contains(select(2, spawnskin(WALKER, 'zz_heli', 'automobile')), "zz_heli can't be spawned here", 'another name for the same helicopter')
     t.eq(spawnskin(WALKER, 'polmav', 'heli') ~= nil, true)
     F.leaveVehicle(WALKER)
 end)

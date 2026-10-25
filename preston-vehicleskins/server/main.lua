@@ -121,7 +121,7 @@ RegisterNetEvent('preston-skins:spawn', function(model, vehicleType, livery)
     end
     if S.isBlocked(Config, model, GetHashKey) then return tell(src, ('%s is not allowed on this server.'):format(model)) end
     -- A vehicle spawned as the wrong type is broken for everyone near it.
-    if vehicleType ~= S.typeFor(Config, model) then
+    if vehicleType ~= S.typeFor(Config, model, GetHashKey) then
         return tell(src, ("%s can't be spawned here. If it's an add-on, add its type to Config.VehicleTypes."):format(model))
     end
     livery = livery ~= nil and S.parseNumber(livery, 1, 100) or nil
