@@ -68,5 +68,10 @@ Config.ReviveEvent = ''
 -- Delete an admin's previous spawned vehicle when they spawn another.
 Config.DeletePreviousSpawnedVehicle = true
 
+-- The vehicle type of add-on vehicles that aren't cars: 'bike', 'boat', 'heli', 'plane', 'submarine'
+-- or 'trailer' (it must match the type in the vehicle's vehicles.meta). Built-in vehicles are already
+-- known, and the server refuses to spawn them as the wrong type. Example: { policeheli = 'heli' }
+Config.VehicleTypes = {}
+
 -- Noclip speeds: normal, holding Shift, holding Alt.
 Config.NoclipSpeed = { normal = 1.0, fast = 4.0, slow = 0.25 }

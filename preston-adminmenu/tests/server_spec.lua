@@ -100,7 +100,15 @@ function GetEntityCoords(entity) local e = entities[entity] return e and e.coord
 function SetEntityCoords(entity, x, y, z) entities[entity].coords = vector3(x, y, z) end
 function GetEntityHeading() return 90.0 end
 function FreezeEntityPosition(entity, frozen) entities[entity].frozen = frozen end
-function GetHashKey(name) return name end
+local hashAlias = {} -- [name] = another name with the same hash, to test hash collisions
+function GetHashKey(name) return hashAlias[name] or name end
+function NetworkGetNetworkIdFromEntity(entity) return entity end
+function GetVehiclePedIsIn(ped)
+    local vehicle = entities[ped] and entities[ped].vehicle
+    return (vehicle and entities[vehicle]) and vehicle or 0
+end
+function GetPlayerRoutingBucket(id) local p = players[tonumber(id)] return p and p.bucket or 0 end
+function SetEntityRoutingBucket(entity, bucket) entities[entity].bucket = bucket end
 function CreateVehicleServerSetter(model, kind, x, y, z)
     local id = newEntity(2, vector3(x, y, z))
     entities[id].model, entities[id].vehicleType = model, kind
@@ -188,6 +196,7 @@ end
 -- ---------------------------------------------------------------- load the resource
 
 dofile('config.lua')
+dofile('shared/vehicle_types.lua')
 dofile('server/util.lua')
 dofile('server/storage.lua')
 dofile('server/logs.lua')
@@ -377,18 +386,58 @@ test('admin modes are set by the server, and tampering is put back', function()
     eq(lastLog().action, 'Blocked tampering')
 end)
 
-test('vehicles are spawned by the server and the old one is cleaned up', function()
+test("vehicles are created by the server in the admin's instance, and the admin's game gets in", function()
     local ok, message = rpc(ADMIN, 'spawnVehicle', { model = 'bad name', vehicleType = 'automobile' })
     eq(ok, false)
     contains(message, 'model name')
-    ok = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
-    eq(ok, true)
-    local first = entities[GetPlayerPed(ADMIN)].vehicle
-    eq(entities[first].plate, 'ADMIN')
+    players[ADMIN].bucket = 6
+    local spawned, data = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
+    eq(spawned, true)
+    eq(data.model, 'adder')
+    eq(entities[data.netId].plate, 'ADMIN')
+    eq(entities[data.netId].bucket, 6, 'same instance as the admin')
+    eq(GetVehiclePedIsIn(GetPlayerPed(ADMIN)), 0, 'the server no longer warps the admin before the car reaches their game')
+    SetPedIntoVehicle(GetPlayerPed(ADMIN), data.netId) -- what the admin's game does once the car arrives
+    local first = data.netId
     rpc(ADMIN, 'spawnVehicle', { model = 'sanchez', vehicleType = 'bike' })
     eq(entities[first], nil, 'previous vehicle deleted')
     ok = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'rocket' })
     eq(ok, false, 'unknown vehicle type')
+    players[ADMIN].bucket = 0
+end)
+
+test('the vehicle type must match the model, looked up by model ID', function()
+    contains(select(2, rpc(ADMIN, 'spawnVehicle', { model = 'buzzard2', vehicleType = 'automobile' })), 'is a heli')
+    hashAlias.zz_heli = 'buzzard2'
+    contains(select(2, rpc(ADMIN, 'spawnVehicle', { model = 'zz_heli', vehicleType = 'automobile' })), 'is a heli',
+        'another name for the same model')
+    contains(select(2, rpc(ADMIN, 'spawnVehicle', { model = 'freight', vehicleType = 'automobile' })), "Trains can't")
+    eq(rpc(ADMIN, 'spawnVehicle', { model = 'buzzard2', vehicleType = 'heli' }), true)
+    eq(rpc(ADMIN, 'spawnVehicle', { model = 'myaddonheli', vehicleType = 'heli' }), true, 'unlisted add-ons: the type from the game is used')
+end)
+
+test("a spawned car someone else is in is never deleted, and you can't spawn inside another car", function()
+    local _, data = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
+    SetPedIntoVehicle(GetPlayerPed(GUEST), data.netId)
+    rpc(ADMIN, 'spawnVehicle', { model = 'sultan', vehicleType = 'automobile' })
+    eq(entities[data.netId] ~= nil, true, 'kept for the guest')
+    SetPedIntoVehicle(GetPlayerPed(ADMIN), data.netId)
+    local ok, message = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
+    eq(ok, false)
+    eq(message, 'Get out of this vehicle first.')
+    entities[GetPlayerPed(ADMIN)].vehicle, entities[GetPlayerPed(GUEST)].vehicle = nil, nil
+end)
+
+test("a car that never reaches the admin's game is removed, and other scripts' deletes are forgotten", function()
+    local _, data = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
+    eq(rpc(ADMIN, 'vehicleNotArrived', { netId = data.netId }), true)
+    eq(entities[data.netId], nil)
+    local _, again = rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
+    DeleteEntity(again.netId)
+    fire('entityRemoved', again.netId)
+    entities[again.netId] = { type = 2, model = 'taxi', coords = vector3(0, 0, 30) } -- the game reuses the handle
+    rpc(ADMIN, 'spawnVehicle', { model = 'adder', vehicleType = 'automobile' })
+    eq(entities[again.netId] ~= nil, true, "someone else's taxi survives")
 end)
 
 test('warnings are shown and reading them is logged', function()

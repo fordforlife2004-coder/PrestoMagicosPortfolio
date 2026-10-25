@@ -66,12 +66,13 @@ RegisterKeyMapping('adminnoclip', 'Admin menu: toggle noclip', 'keyboard', Confi
 -- ---------------------------------------------------------------- actions that need this game's help
 -- The server approves and logs each one first; the game then does the part only it can do.
 
-local SUBMARINES = { submersible = true, submersible2 = true, kosatka = true, avisa = true }
-local BLIMPS = { blimp = true, blimp2 = true, blimp3 = true }
-
+-- The type the server needs to spawn a model, or nil for trains (which it can't spawn).
 local function vehicleTypeOf(model, hash)
-    if SUBMARINES[model] then return 'submarine' end
-    if BLIMPS[model] or IsThisModelAHeli(hash) then return 'heli' end
+    if KnownTrains[model] then return nil end
+    local known = (Config.VehicleTypes or {})[model] or KnownVehicleTypes[model]
+    if known then return known end
+    -- An add-on vehicle: ask the game what it is.
+    if IsThisModelAHeli(hash) then return 'heli' end
     if IsThisModelAPlane(hash) then return 'plane' end
     if IsThisModelABoat(hash) or IsThisModelAJetski(hash) then return 'boat' end
     if IsThisModelABike(hash) or IsThisModelABicycle(hash) then return 'bike' end
@@ -143,7 +144,30 @@ ClientActions.spawnVehicle = function(p)
     end
     local vehicleType = vehicleTypeOf(model, hash)
     if not vehicleType then return { ok = false, data = "Trains can't be spawned from the menu." } end
-    return Rpc('spawnVehicle', { model = model, vehicleType = vehicleType })
+    local result = Rpc('spawnVehicle', { model = model, vehicleType = vehicleType })
+    if not result.ok then return result end
+
+    -- The server created the car; wait until it reaches this game (add-on models can take a while), then get in.
+    local netId, vehicle = result.data.netId, nil
+    for _ = 1, 100 do
+        if NetworkDoesEntityExistWithNetworkId(netId) then
+            vehicle = NetToVeh(netId)
+            if vehicle ~= 0 and DoesEntityExist(vehicle) then break end
+            vehicle = nil
+        end
+        Wait(100)
+    end
+    if not vehicle then
+        Rpc('vehicleNotArrived', { netId = netId })
+        return { ok = false, data = ('%s never arrived. Is the model installed on the server?'):format(model) }
+    end
+    local ped = PlayerPedId()
+    for _ = 1, 20 do
+        SetPedIntoVehicle(ped, vehicle, -1)
+        if GetVehiclePedIsIn(ped, false) == vehicle then break end
+        Wait(100)
+    end
+    return { ok = true, data = ('Spawned %s.'):format(model) }
 end
 
 ClientActions.vehicleAction = function(p)

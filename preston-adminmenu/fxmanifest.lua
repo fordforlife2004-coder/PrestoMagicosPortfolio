@@ -9,7 +9,10 @@ version '2.0.0'
 
 ui_page 'html/index.html'
 
-shared_script 'config.lua'
+shared_scripts {
+    'config.lua',
+    'shared/vehicle_types.lua',
+}
 
 server_scripts {
     'server/util.lua',

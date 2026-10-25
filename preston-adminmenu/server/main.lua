@@ -235,28 +235,77 @@ Actions.setMode = { run = function(src, p)
     return enabled
 end }
 
+-- The known type of a model, looked up by the game's model hash so another name for the same model
+-- gets the same answer: Config.VehicleTypes for add-ons, the built-in list, 'train' for trains, or
+-- nil for a model nobody listed (an add-on car, or an add-on the owner hasn't listed).
+local knownByHash
+local function knownTypeOf(model)
+    local hash = GetHashKey(model)
+    for name, kind in pairs(Config.VehicleTypes or {}) do
+        if GetHashKey(name) == hash then return kind end
+    end
+    if not knownByHash then
+        knownByHash = {}
+        for name, kind in pairs(KnownVehicleTypes) do knownByHash[GetHashKey(name)] = kind end
+        for name in pairs(KnownTrains) do knownByHash[GetHashKey(name)] = 'train' end
+    end
+    return knownByHash[hash]
+end
+
+-- Whether a player other than src is sitting in the vehicle.
+local function otherPlayerInside(vehicle, src)
+    for _, id in ipairs(GetPlayers()) do
+        local player = tonumber(id)
+        if player ~= src and GetVehiclePedIsIn(GetPlayerPed(player), false) == vehicle then return true end
+    end
+    return false
+end
+
+-- An admin's last spawned car is removed when they spawn another or leave, unless someone else is in it.
+local function releaseSpawnedVehicle(src)
+    local previous = spawnedVehicle[src]
+    spawnedVehicle[src] = nil
+    if previous and DoesEntityExist(previous) and not otherPlayerInside(previous, src) then DeleteEntity(previous) end
+end
+
+-- The server creates the car (so it can't be faked and the server knows it exists) in the admin's
+-- own world instance. The admin's game gets in once the car has reached it.
 Actions.spawnVehicle = { perm = 'vehicle', run = function(src, p)
     local model = type(p.model) == 'string' and p.model:lower() or ''
     if not U.validModelName(model) then fail('Enter a vehicle model name, like adder or police3.') end
     if not VEHICLE_TYPES[p.vehicleType] then fail('Unknown vehicle type.') end
+    -- A vehicle spawned as the wrong type is broken for everyone near it.
+    local known = knownTypeOf(model)
+    if known == 'train' then fail("Trains can't be spawned from the menu.") end
+    if known and known ~= p.vehicleType then
+        fail(('"%s" is a %s, so it can only be spawned as one.'):format(model, known))
+    end
     local ped = GetPlayerPed(src)
     local at = coordsOf(src)
-    if Config.DeletePreviousSpawnedVehicle and spawnedVehicle[src] and DoesEntityExist(spawnedVehicle[src]) then
-        DeleteEntity(spawnedVehicle[src])
+    local inside = GetVehiclePedIsIn(ped, false)
+    -- Sitting in a car is only fine when it's your last spawned one and it's about to be removed;
+    -- otherwise the new car would appear inside it.
+    if inside ~= 0 and (inside ~= spawnedVehicle[src] or not Config.DeletePreviousSpawnedVehicle or otherPlayerInside(inside, src)) then
+        fail('Get out of this vehicle first.')
     end
-    -- Spawned by the server, so it can't be faked and the server knows it exists.
+    if Config.DeletePreviousSpawnedVehicle then releaseSpawnedVehicle(src) end
     local vehicle = CreateVehicleServerSetter(GetHashKey(model), p.vehicleType, at.x, at.y, at.z + 0.5, GetEntityHeading(ped))
-    local waited = 0
-    while not DoesEntityExist(vehicle) and waited < 1000 do
-        Wait(50)
-        waited = waited + 50
-    end
-    if not DoesEntityExist(vehicle) then fail(('"%s" could not be spawned.'):format(model)) end
-    SetPedIntoVehicle(ped, vehicle, -1)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then fail(('"%s" could not be spawned.'):format(model)) end
+    SetEntityRoutingBucket(vehicle, GetPlayerRoutingBucket(src))
     SetVehicleNumberPlateText(vehicle, 'ADMIN')
     spawnedVehicle[src] = vehicle
     Logs.add(src, 'Spawned vehicle', model)
-    return ('Spawned %s.'):format(model)
+    return { netId = NetworkGetNetworkIdFromEntity(vehicle), model = model }
+end }
+
+-- The admin's game never received the new car (usually a model that isn't installed): remove it.
+Actions.vehicleNotArrived = { perm = 'vehicle', run = function(src, p)
+    local vehicle = NetworkGetEntityFromNetworkId(tonumber(p.netId) or -1)
+    if vehicle ~= 0 and spawnedVehicle[src] == vehicle then
+        spawnedVehicle[src] = nil
+        DeleteEntity(vehicle)
+    end
+    return true
 end }
 
 -- Fix, flip and clean happen in the admin's own game after the server approves and logs them.
@@ -374,6 +423,13 @@ RegisterCommand('adminunban', function(src, args)
     end
 end, true)
 
+-- Another script deleted an admin's car: forget it, so the old handle is never used again.
+AddEventHandler('entityRemoved', function(entity)
+    for player, vehicle in pairs(spawnedVehicle) do
+        if vehicle == entity then spawnedVehicle[player] = nil end
+    end
+end)
+
 AddEventHandler('playerJoining', function()
     joinedAt[source] = os.time()
 end)
@@ -381,8 +437,7 @@ end)
 AddEventHandler('playerDropped', function()
     local src = source
     modes[src], frozen[src], joinedAt[src], previousPosition[src], pendingWarnings[src] = nil, nil, nil, nil, nil
-    if spawnedVehicle[src] and DoesEntityExist(spawnedVehicle[src]) then DeleteEntity(spawnedVehicle[src]) end
-    spawnedVehicle[src] = nil
+    releaseSpawnedVehicle(src)
     forgetRequests(src)
     forgetDeniedLogs(src)
 end)

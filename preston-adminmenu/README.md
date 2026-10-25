@@ -16,7 +16,7 @@ No QBCore or ESX needed. oxmysql is optional (bans are saved in the server's bui
 | Noclip moved along the map's axes, and W moved you up. | Noclip follows the camera: W A S D, Space and Ctrl for up and down, Shift faster, Alt slower. It works in vehicles too. |
 | One permission covered everything. | Separate permissions for each action, so moderators can kick and handle reports without being able to ban. Senior staff can be made immune to kicks, bans, freezes and brings from staff who don't have the bypass permission. |
 | Nothing was logged. | A Logs tab, plus a Discord webhook (kept on the server only, and it can't ping @everyone). |
-| `/car` with a misspelled model waited forever and never spawned anything (`while not HasModelLoaded`). | Models are checked before spawning. The server spawns the vehicle and removes your previous one. |
+| `/car` with a misspelled model waited forever and never spawned anything (`while not HasModelLoaded`). | Models are checked before spawning. The server creates the vehicle in your own world instance, and your game gets you in once it has arrived. The server also checks the model is spawned as the right kind of vehicle, by the game's model ID. Your previous car is removed, unless someone else is in it. |
 | Freeze, heal and slap only worked on yourself. | Freeze and heal/revive work on any player. Warnings show on the player's screen until they click "I understand". |
 | Chat commands only, and everything was in one file with no extension. | An in-game panel (F10), plus a normal resource layout with tests. |
 
@@ -106,7 +106,8 @@ For QBCore or ESX servers, set `Config.ReviveEvent` (`'hospital:client:Revive'` 
 ## How it's built
 
 - **One server entry point.** Every button sends one event to the server. The server checks the rate limit, the menu permission and the permission for that exact action, validates the input, does the work and logs it. Errors come back to the panel as plain messages.
-- **The server moves players.** Bring, send back, go to, freeze and vehicle spawning use OneSync server functions, so they work no matter where players are.
+- **The server moves players.** Bring, send back, go to and freeze use OneSync server functions, so they work no matter where players are.
+- **The server creates vehicles; the admin's game gets in.** The server creates a spawned vehicle in the admin's own world instance, checking first that the model is spawned as the right kind of vehicle. The admin's game seats them once the car has arrived. It would often fail if the server tried before the car reached their game. For add-on vehicles that aren't cars, list their type in `Config.VehicleTypes`.
 - **Admin modes live in player state.** The server sets `presAdmin_noclip`, `presAdmin_god` and `presAdmin_invisible`. The game reacts to them, and the server undoes any change it didn't make.
 - **Nothing from players is shown as HTML.** Names, reasons and reports are always shown as text, so a player named `<img onerror=...>` can't run code in an admin's menu.
 - **Secrets stay on the server.** `config.lua` is sent to every player, so the webhook is a server convar instead.
