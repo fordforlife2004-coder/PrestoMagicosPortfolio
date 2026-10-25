@@ -1,0 +1,107 @@
+:root {
+    --panel: rgba(10, 12, 18, 0.9);
+    --key: #161a24;
+    --key-on: #1d2230;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e8ebf3;
+    --muted: #7d8599;
+    --red: #ff3b3b;
+    --blue: #2f7bff;
+    --amber: #ffb020;
+    --green: #2fd36b;
+    --font: "Segoe UI", "Inter", system-ui, sans-serif;
+    --mono: "Cascadia Mono", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: transparent; /* the game shows through everywhere except the panel */
+    color: var(--text);
+    font-family: var(--font);
+    user-select: none;
+}
+
+.hud {
+    position: absolute;
+    width: 430px;
+    padding: 10px 12px 12px;
+    border-radius: 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    animation: in 0.18s ease-out;
+}
+.hud.bottom-right { right: 28px; bottom: 28px; }
+.hud.bottom-center { left: 50%; bottom: 28px; transform: translateX(-50%); }
+.hud.top-right { right: 28px; top: 28px; }
+@keyframes in { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+
+.hud-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.title { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.brand { font-weight: 800; letter-spacing: 0.14em; font-size: 12px; color: var(--muted); }
+.vehicle { font-weight: 650; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* A small light bar that flashes while the lights are on. */
+.lightbar {
+    display: flex;
+    gap: 3px;
+    padding: 4px;
+    border-radius: 6px;
+    background: #07080c;
+    border: 1px solid var(--border);
+}
+.lamp { width: 14px; height: 7px; border-radius: 2px; background: #22252e; }
+.lights-on .lamp.red { animation: flash-red 0.5s steps(1) infinite; }
+.lights-on .lamp.blue { animation: flash-blue 0.5s steps(1) infinite; }
+.lights-on .lamp.white { animation: flash-white 0.25s steps(1) infinite; }
+@keyframes flash-red { 0% { background: var(--red); box-shadow: 0 0 10px var(--red); } 50% { background: #22252e; box-shadow: none; } }
+@keyframes flash-blue { 0% { background: #22252e; box-shadow: none; } 50% { background: var(--blue); box-shadow: 0 0 10px var(--blue); } }
+@keyframes flash-white { 0% { background: #fff; } 50% { background: #22252e; } }
+
+.keys { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.key {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 9px 4px 7px;
+    border-radius: 9px;
+    background: var(--key);
+    border: 1px solid var(--border);
+    transition: background 0.12s, border-color 0.12s;
+}
+.key.on { background: var(--key-on); border-color: rgba(255, 255, 255, 0.16); }
+.key.unused { opacity: 0.4; }
+.led { width: 22px; height: 4px; border-radius: 3px; background: #2a2e39; margin-bottom: 3px; }
+#key-lights.on .led { background: var(--red); box-shadow: 0 0 8px var(--red); }
+#key-siren.on .led { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+#key-tone.on .led, #key-pattern.on .led { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+#key-horn.on .led { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.key-name { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.key-value {
+    max-width: 100%;
+    font-size: 12.5px;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+kbd {
+    margin-top: 2px;
+    min-width: 22px;
+    padding: 1px 6px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #0b0d13;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #c9cedb;
+    text-align: center;
+}

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ELS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section id="hud" class="hud bottom-right" hidden aria-label="Emergency lights control panel">
+        <header class="hud-head">
+            <div class="lightbar" aria-hidden="true">
+                <span class="lamp red"></span><span class="lamp red"></span><span class="lamp white"></span>
+                <span class="lamp white"></span><span class="lamp blue"></span><span class="lamp blue"></span>
+            </div>
+            <div class="title">
+                <span class="brand">ELS</span>
+                <span id="vehicle" class="vehicle"></span>
+            </div>
+        </header>
+        <div class="keys">
+            <div class="key" id="key-lights">
+                <span class="led"></span>
+                <span class="key-name">Lights</span>
+                <span class="key-value" id="value-lights"></span>
+                <kbd id="bind-lights"></kbd>
+            </div>
+            <div class="key" id="key-siren">
+                <span class="led"></span>
+                <span class="key-name">Siren</span>
+                <span class="key-value" id="value-siren"></span>
+                <kbd id="bind-siren"></kbd>
+            </div>
+            <div class="key" id="key-tone">
+                <span class="led"></span>
+                <span class="key-name">Tone</span>
+                <span class="key-value" id="value-tone"></span>
+                <kbd id="bind-tone"></kbd>
+            </div>
+            <div class="key" id="key-pattern">
+                <span class="led"></span>
+                <span class="key-name">Pattern</span>
+                <span class="key-value" id="value-pattern"></span>
+                <kbd id="bind-pattern"></kbd>
+            </div>
+            <div class="key" id="key-horn">
+                <span class="led"></span>
+                <span class="key-name">Horn</span>
+                <span class="key-value" id="value-horn">Hold</span>
+                <kbd id="bind-horn"></kbd>
+            </div>
+        </div>
+    </section>
+    <script src="app.js"></script>
+</body>
+</html>
