@@ -14,6 +14,7 @@ Standalone FiveM scripts: no QBCore or ESX needed. Each v2 script has the server
 | [Vehicle Spawn v2](preston-vehiclespawn/) | `/car` and `/dv`, with cooldowns, blocked models and staff rules |
 | [Vehicle Skins v2](preston-vehicleskins/) | Liveries, extras, paint, plates and performance tuning |
 | [Iowa Police v2](preston-iowapolice/) | Iowa State Patrol and Sheriff vehicles with unit-number plates, for whitelisted police |
+| [Prest_Sector Cuffs](Prest_Sector-Cuffs/) | Realistic handcuffing: real cuffs on the wrists, the arrest animation, escort and putting suspects in vehicles |
 | [Hello](scriptname/) | `/hello`, my first script |
 
 ## Preston Admin Menu v2
@@ -34,6 +35,17 @@ See [preston-els](preston-els/) for screenshots, setup and everything v2 fixes f
 - **[Iowa Police](preston-iowapolice/)**: `/isp 101` spawns an Iowa State Patrol car with the plate `ISP 101` (tan, black and gold). `/sheriff` and `/iowaskin` work the same way. It's whitelist-only by default, and you can add departments in the config.
 
 Each script's README lists what changed from the original v1 file.
+
+## Prest_Sector Cuffs
+Handcuffing that looks real:
+- The game's own handcuffs sit on the cuffed player's wrists, behind the back or in front, and every nearby player sees them.
+- `/cuff` plays the GTA Online arrest. The officer takes the wrists from behind and the cuffs close, unless the suspect pulls away first. Facing the suspect cuffs them in front instead.
+- Cuffed players walk with their hands cuffed and can't fight, aim or drive.
+- `/escort` walks them at your side by the arm, and `/putin` and `/takeout` handle the back seat.
+- The server checks every step.
+- `/cuffadjust` lets you fine-tune the cuffs on the wrists in game.
+
+See [Prest_Sector-Cuffs](Prest_Sector-Cuffs/) for the commands and setup.
 
 ## Original v1 scripts
 The first versions are still in the repo for comparison: `adminmenu!`, `ServerAdminConfig` and `Serverlua` (Admin Menu v1), `ELS-LIGHTING`, `Iowa Police-Skin!`, `Vheicle-Skins` and `vehicle-spawn`.
@@ -61,12 +73,15 @@ ensure preston-els
 ensure preston-vehiclespawn
 ensure preston-vehicleskins
 ensure preston-iowapolice
+ensure Prest_Sector-Cuffs
 ensure scriptname
 
 add_ace group.admin adminmenu allow
 add_ace group.admin vehiclespawn.staff allow
 add_ace group.admin vehicleskins allow
 add_ace group.admin iowapolice.use allow
+add_ace group.admin cuffs.use allow
+add_ace group.admin cuffs.adjust allow
 add_principal identifier.license:YOUR_LICENSE group.admin
 ```
 
