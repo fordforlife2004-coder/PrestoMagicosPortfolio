@@ -1,0 +1,91 @@
+/* People, vehicles, weapons, reports, warrants, BOLOs and the penal code. */
+
+.rec-small { font-size: 12px; }
+.rec-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.rec-meta { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.rec-link {
+  background: none; border: 0; padding: 0; cursor: pointer; color: #93c5fd; font: inherit; font-size: 13px;
+  text-decoration: underline; text-decoration-color: rgba(147, 197, 253, 0.4); text-underline-offset: 3px;
+}
+.rec-link:hover { color: #bfdbfe; }
+.rec-form-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-top: 4px; }
+.rec-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.rec-flag-picks { gap: 8px 16px; }
+.rec-owner-pick { padding: 6px 8px; border-radius: 8px; background: #0b1222; border: 1px solid var(--line-2); flex-wrap: nowrap; min-height: 40px; }
+
+/* People */
+.rec-avatar {
+  width: 40px; height: 40px; border-radius: 10px; flex: none; display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(135deg, #1e3a8a, #312e81); color: #dbe7ff; font-weight: 700;
+}
+.rec-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.rec-avatar.is-small { width: 32px; height: 32px; border-radius: 8px; font-size: 12px; }
+.rec-avatar.is-large { width: 110px; height: 130px; border-radius: 12px; font-size: 30px; }
+.rec-person-line { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.rec-person-line b { white-space: nowrap; }
+.rec-profile { display: flex; gap: 18px; align-items: flex-start; }
+.rec-profile-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.rec-profile-main h1 { font-size: 22px; }
+.rec-facts { grid-template-columns: max-content 1fr max-content 1fr; }
+.rec-alert {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; margin-bottom: 14px; border-radius: 10px; font-weight: 600;
+  background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.5); color: #fecaca;
+}
+.rec-licenses { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.rec-license { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 8px; background: var(--panel-2); }
+.rec-bolo-line { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: var(--panel-2); flex-wrap: wrap; }
+
+/* Pickers */
+.rec-pick-results { display: flex; flex-direction: column; gap: 4px; max-height: 340px; overflow-y: auto; }
+.rec-pick-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 8px; cursor: pointer; text-align: left;
+  background: var(--panel-2); border: 1px solid transparent; color: var(--text);
+}
+.rec-pick-row:hover { border-color: var(--accent); }
+.rec-pick-row > .row { width: 100%; flex-wrap: nowrap; }
+
+/* Charges */
+.rec-charge-editor { display: flex; flex-direction: column; gap: 10px; }
+.rec-charges { display: flex; flex-direction: column; gap: 6px; }
+.rec-charge { display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 10px; border-radius: 8px; background: var(--panel-2); }
+.rec-charge-name { font-weight: 500; }
+.rec-count { width: 64px; padding: 5px 8px; }
+.rec-charge-results { display: flex; flex-direction: column; gap: 4px; }
+.rec-charge-totals {
+  display: flex; justify-content: flex-end; gap: 18px; padding: 8px 12px; margin-top: 6px; border-radius: 8px;
+  background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); font-variant-numeric: tabular-nums;
+}
+.rec-charge-totals span { margin-right: auto; color: var(--muted); }
+
+/* Vehicles */
+.rec-vehicle-head { display: flex; align-items: center; gap: 16px; }
+.rec-vehicle-head h1 { font-size: 20px; }
+.plate-box.is-large { font-size: 22px; padding: 6px 14px; border-width: 3px; }
+.rec-alerts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.rec-alert-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; font-weight: 500; }
+.rec-alert-item.is-error { background: rgba(239, 68, 68, 0.14); color: #fecaca; border: 1px solid rgba(239, 68, 68, 0.45); }
+.rec-alert-item.is-warning { background: rgba(245, 158, 11, 0.12); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); }
+.rec-clear { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; background: rgba(34, 197, 94, 0.12); color: #bbf7d0; }
+
+/* Reports */
+.rec-report-head h1 { font-size: 21px; margin: 8px 0 2px; }
+.rec-narrative { line-height: 1.6; font-size: 14px; }
+
+/* Warrants and BOLOs */
+.rec-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.rec-cards .card + .card { margin-top: 0; }
+.rec-warrant, .rec-bolo { display: flex; flex-direction: column; gap: 8px; }
+.rec-warrant.is-active { border-color: rgba(239, 68, 68, 0.55); }
+.rec-warrant.is-requested { border-color: rgba(245, 158, 11, 0.5); }
+.rec-warrant-who h2 { font-size: 17px; }
+.rec-warrant-reason { color: var(--text); }
+.rec-bolo { border-top: 3px solid #f97316; }
+.rec-bolo.is-off { opacity: 0.6; border-top-color: var(--line-2); }
+.rec-bolo h2 { font-size: 16px; }
+.rec-bolo-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: rgba(249, 115, 22, 0.15); color: #fdba74; }
+
+@media (max-width: 1100px) {
+  .rec-facts { grid-template-columns: max-content 1fr; }
+  .rec-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rec-avatar.is-large { width: 84px; height: 100px; }
+}
