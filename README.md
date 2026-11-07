@@ -15,6 +15,7 @@ Standalone FiveM scripts: no QBCore or ESX needed. Each v2 script has the server
 | [Vehicle Skins v2](preston-vehicleskins/) | Liveries, extras, paint, plates and performance tuning |
 | [Iowa Police v2](preston-iowapolice/) | Iowa State Patrol and Sheriff vehicles with unit-number plates, for whitelisted police |
 | [Prest_Sector Cuffs](Prest_Sector-Cuffs/) | Realistic handcuffing: real cuffs on the wrists, the arrest animation, escort and putting suspects in vehicles |
+| [Prest_Sector CAD](Prest_Sector-CAD/) | Computer aided dispatch and police records on an in-game tablet: calls, units, 911 and panic, people, vehicles, reports, warrants, BOLOs and a plate reader |
 | [Hello](scriptname/) | `/hello`, my first script |
 
 ## Preston Admin Menu v2
@@ -47,6 +48,20 @@ Handcuffing that looks real:
 
 See [Prest_Sector-Cuffs](Prest_Sector-Cuffs/) for the commands and setup.
 
+## Prest_Sector CAD
+A full CAD and MDT on an in-game tablet:
+- A live dispatch board: calls by priority, units and their statuses, notes, and assigning units to calls.
+- `/911`, `/311` and anonymous tips, and a panic button, all landing on the board with map blips.
+- Searches for people, vehicles and weapons, with profiles, licenses and flags.
+- A plate reader that flags stolen cars, BOLOs, expired papers and owners with warrants.
+- Reports with charges from the penal code, and warrants a judge approves.
+- BOLOs, and civilians' own characters, vehicles and weapons.
+
+It works standalone or with QBCore, Qbox or ESX names and jobs. The server checks every request, and there are 88 tests.
+See [Prest_Sector-CAD](Prest_Sector-CAD/) for the roles, commands and setup.
+
+![Prest_Sector CAD dispatch board](Prest_Sector-CAD/docs/cad-dispatch.png)
+
 ## Original v1 scripts
 The first versions are still in the repo for comparison: `adminmenu!`, `ServerAdminConfig` and `Serverlua` (Admin Menu v1), `ELS-LIGHTING`, `Iowa Police-Skin!`, `Vheicle-Skins` and `vehicle-spawn`.
 
@@ -74,6 +89,7 @@ ensure preston-vehiclespawn
 ensure preston-vehicleskins
 ensure preston-iowapolice
 ensure Prest_Sector-Cuffs
+ensure Prest_Sector-CAD
 ensure scriptname
 
 add_ace group.admin adminmenu allow
@@ -82,6 +98,7 @@ add_ace group.admin vehicleskins allow
 add_ace group.admin iowapolice.use allow
 add_ace group.admin cuffs.use allow
 add_ace group.admin cuffs.adjust allow
+add_ace group.admin cad.admin allow
 add_principal identifier.license:YOUR_LICENSE group.admin
 ```
 
