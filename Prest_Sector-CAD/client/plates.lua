@@ -85,6 +85,21 @@ function K.runPlate(auto)
     end)
 end
 
+-- Opens the tablet on a plate: the vehicle search for it, and the plate check's alerts. For other
+-- scripts, such as Prest_Sector-Radar's plate reader: exports['Prest_Sector-CAD']:OpenPlate('ABC123').
+function K.openPlate(plate)
+    local key = C.plateKey(plate)
+    if not key then return false end
+    K.open('vehicles', { query = key })
+    K.rpc('plate.check', { plate = key }, function(ok, result)
+        if not ok then return K.notify(result, 'error') end
+        K.toTablet('plate', result)
+    end)
+    return true
+end
+
+exports('OpenPlate', function(plate) return K.openPlate(plate) end)
+
 if R.command and R.command ~= '' then
     RegisterCommand(R.command, function() K.runPlate(false) end, false)
     RegisterKeyMapping(R.command, 'CAD: run the plate in front of you', 'keyboard', Config.Keys.plate or '')

@@ -128,7 +128,7 @@ Everything is in [`config.lua`](config.lua). Mistakes in it are printed in the s
 - `:LookupPlate(plate)` runs a plate and returns the same result as `/plate`.
 - The server event `Prest_Sector-CAD:callCreated` fires with every new call.
 
-**In a player's game:** `exports['Prest_Sector-CAD']:OpenCAD('people')`, `:CloseCAD()` and `:IsOpen()`.
+**In a player's game:** `exports['Prest_Sector-CAD']:OpenCAD('people')`, `:CloseCAD()` and `:IsOpen()`. `:OpenPlate('ABC123')` opens the tablet on the vehicle search for that plate and runs it. [Prest_Sector Radar](../Prest_Sector-Radar/) uses it to open a plate reader hit.
 
 ## Trying the tablet in a browser
 
@@ -152,7 +152,7 @@ lua tests/server_spec.lua
 lua tests/client_spec.lua
 ```
 
-The 88 tests cover three areas:
+The 89 tests cover three areas:
 - **`cad_spec.lua`, the shared rules:**
   - what each role can do, and the config switches
   - cleaning text and plates
@@ -173,7 +173,7 @@ The 88 tests cover three areas:
   - requests and their timeouts
   - the 911 commands and the panic button
   - the location loop, unit and call blips, routes and alerts
-  - the plate reader and its automatic mode
+  - the plate reader and its automatic mode, and opening a plate for another script
   - cleaning up when the script stops
 
 The tests check the logic outside the game; the tablet itself was clicked through in a browser.

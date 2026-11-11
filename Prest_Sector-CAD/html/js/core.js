@@ -180,7 +180,7 @@
 
   window.addEventListener('message', (event) => {
     const m = event.data || {};
-    if (m.type === 'open') CAD.open(m.page);
+    if (m.type === 'open') CAD.open(m.page, m.params);
     else if (m.type === 'close') hide();
     else if (m.type === 'push') CAD.push(m.kind, m.data);
   });
@@ -510,7 +510,7 @@
   };
 
   // Opens the tablet: loads who you are, the dispatch board if you can see it, then the page.
-  CAD.open = CAD.run(async (page) => {
+  CAD.open = CAD.run(async (page, params) => {
     CAD.state.open = true;
     tablet().hidden = false;
     CAD.$('#mock-open').hidden = true;
@@ -532,7 +532,7 @@
         CAD.toast(e.message || String(e), 'error');
       }
     }
-    await CAD.go(page || CAD.state.page || firstPage());
+    await CAD.go(page || CAD.state.page || firstPage(), params || null);
   });
 
   document.addEventListener('keydown', (e) => {

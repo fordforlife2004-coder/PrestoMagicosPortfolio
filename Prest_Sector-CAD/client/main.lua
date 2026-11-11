@@ -161,14 +161,15 @@ end
 function K.isOpen() return isOpen end
 
 -- Opens the tablet, on a page if given ('civilian', 'people', ...). Open already: just changes page.
-function K.open(page)
+-- Opens the tablet (on a page, with that page's params, e.g. K.open('vehicles', { query = 'ABC123' })).
+function K.open(page, params)
     if isOpen then
-        SendNUIMessage({ type = 'open', page = page })
+        SendNUIMessage({ type = 'open', page = page, params = params })
         return
     end
     isOpen = true
     SetNuiFocus(true, true)
-    SendNUIMessage({ type = 'open', page = page })
+    SendNUIMessage({ type = 'open', page = page, params = params })
     TriggerServerEvent(EVENT .. 'watch', true)
     startTablet()
 end

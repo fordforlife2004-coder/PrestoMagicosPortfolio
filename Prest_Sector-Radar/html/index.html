@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prest_Sector Radar</title>
+  <link rel="stylesheet" href="css/radar.css">
+</head>
+<body>
+  <!-- The radar console: front and rear antennas, patrol speed, and the plate reader. -->
+  <div id="radar" class="radar" hidden>
+    <div class="console">
+      <div class="antenna" data-antenna="front">
+        <div class="ant-head"><span class="ant-name">Front</span><span class="ant-mode"></span><span class="lamp lock">Lock</span></div>
+        <div class="ant-readouts">
+          <div class="readout target"><div class="digits" data-digits="target"></div><span class="label">Target</span></div>
+          <div class="readout fast"><div class="digits" data-digits="fast"></div><span class="label">Fast</span></div>
+        </div>
+      </div>
+      <div class="patrol">
+        <div class="brand"><b>Prest_Sector</b><span>Radar</span></div>
+        <div class="readout patrol-speed"><div class="digits" data-digits="patrol"></div><span class="label">Patrol</span></div>
+        <div class="limit"><span class="label">Limit</span><b id="limit">--</b><span id="units" class="units">mph</span></div>
+        <div class="lamp fastlock" id="fastlock">Fast lock</div>
+      </div>
+      <div class="antenna" data-antenna="rear">
+        <div class="ant-head"><span class="ant-name">Rear</span><span class="ant-mode"></span><span class="lamp lock">Lock</span></div>
+        <div class="ant-readouts">
+          <div class="readout target"><div class="digits" data-digits="target"></div><span class="label">Target</span></div>
+          <div class="readout fast"><div class="digits" data-digits="fast"></div><span class="label">Fast</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="plates" id="plates">
+      <div class="camera" data-camera="front">
+        <span class="cam-name">Front plate</span>
+        <div class="plate"><span class="plate-text"></span></div>
+        <div class="cam-status"></div>
+      </div>
+      <div class="camera" data-camera="rear">
+        <span class="cam-name">Rear plate</span>
+        <div class="plate"><span class="plate-text"></span></div>
+        <div class="cam-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The remote: settings, locks and moving the console. -->
+  <div id="remote-wrap" class="remote-wrap" hidden>
+    <div class="remote" role="dialog" aria-label="Radar remote">
+      <div class="remote-head">
+        <div><b>Radar remote</b><span class="sub">Changes save on their own</span></div>
+        <button type="button" class="btn ghost" data-action="close" aria-label="Close">Close</button>
+      </div>
+
+      <section class="group">
+        <h3>Antennas</h3>
+        <div class="row" data-antenna-row="front">
+          <span class="row-label">Front</span>
+          <button type="button" class="btn toggle" data-set="front.on">On</button>
+          <div class="seg" data-set="front.mode">
+            <button type="button" data-value="same">Same</button>
+            <button type="button" data-value="opp">Opposite</button>
+            <button type="button" data-value="both">Both</button>
+          </div>
+        </div>
+        <div class="row" data-antenna-row="rear">
+          <span class="row-label">Rear</span>
+          <button type="button" class="btn toggle" data-set="rear.on">On</button>
+          <div class="seg" data-set="rear.mode">
+            <button type="button" data-value="same">Same</button>
+            <button type="button" data-value="opp">Opposite</button>
+            <button type="button" data-value="both">Both</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="group">
+        <h3>Fast limit</h3>
+        <div class="row">
+          <button type="button" class="btn step" data-step="-5" aria-label="Lower the fast limit by 5">−5</button>
+          <button type="button" class="btn step" data-step="-1" aria-label="Lower the fast limit by 1">−1</button>
+          <span class="big" id="remote-limit">75</span><span class="units" id="remote-units">mph</span>
+          <button type="button" class="btn step" data-step="1" aria-label="Raise the fast limit by 1">+1</button>
+          <button type="button" class="btn step" data-step="5" aria-label="Raise the fast limit by 5">+5</button>
+        </div>
+        <div class="row">
+          <button type="button" class="btn toggle" data-set="fastLock">Lock on fast</button>
+          <span class="hint">Locks the antenna by itself when a car goes over the limit.</span>
+        </div>
+      </section>
+
+      <section class="group">
+        <h3>Plate reader</h3>
+        <div class="row">
+          <button type="button" class="btn toggle" data-set="plates">On</button>
+          <button type="button" class="btn" data-action="lockPlates">Lock plates</button>
+          <button type="button" class="btn" data-action="openCad" id="open-cad">Open last hit in CAD</button>
+        </div>
+      </section>
+
+      <section class="group">
+        <h3>Locks</h3>
+        <div class="row">
+          <button type="button" class="btn" data-action="lockFront">Lock front</button>
+          <button type="button" class="btn" data-action="lockRear">Lock rear</button>
+          <button type="button" class="btn danger" data-action="reset">Clear all locks</button>
+        </div>
+      </section>
+
+      <section class="group">
+        <h3>Console</h3>
+        <div class="row">
+          <span class="row-label">Volume</span>
+          <input type="range" id="volume" min="0" max="100" step="5" aria-label="Volume">
+          <span class="value" id="volume-value">60</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Size</span>
+          <input type="range" id="scale" min="0.6" max="1.6" step="0.05" aria-label="Console size">
+          <span class="value" id="scale-value">100%</span>
+        </div>
+        <div class="row">
+          <span class="hint">Drag the console to move it while the remote is open.</span>
+          <button type="button" class="btn ghost" data-action="resetPos">Put it back</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="preview-bar" class="preview-bar" hidden>
+    <b>Preview</b> made-up traffic, as the radar shows it in game.
+    <button type="button" class="btn" id="preview-remote">Open the remote</button>
+  </div>
+
+  <script src="js/radar.js"></script>
+  <script src="js/demo.js"></script>
+</body>
+</html>
