@@ -16,7 +16,7 @@ Standalone FiveM scripts: no QBCore or ESX needed. Each v2 script has the server
 | [Iowa Police v2](preston-iowapolice/) | Iowa State Patrol and Sheriff vehicles with unit-number plates, for whitelisted police |
 | [Prest_Sector Cuffs](Prest_Sector-Cuffs/) | Realistic handcuffing: real cuffs on the wrists, the arrest animation, escort and putting suspects in vehicles |
 | [Prest_Sector CAD](Prest_Sector-CAD/) | Computer aided dispatch and police records on an in-game tablet: calls, units, 911 and panic, people, vehicles, reports, warrants, BOLOs and a plate reader |
-| [Hello](scriptname/) | `/hello`, my first script |
+| [Prest_Sector Radar](Prest_Sector-Radar/) | Police speed radar and plate reader: front and rear antennas, a fast limit alarm, locks, and plate hits from the CAD and a hotlist |
 
 ## Preston Admin Menu v2
 An in-game admin panel where the server checks every action. It has saved bans that block rejoining, player reports, spectate, server-controlled noclip and god mode, Discord logs, and tests.
@@ -57,10 +57,23 @@ A full CAD and MDT on an in-game tablet:
 - Reports with charges from the penal code, and warrants a judge approves.
 - BOLOs, and civilians' own characters, vehicles and weapons.
 
-It works standalone or with QBCore, Qbox or ESX names and jobs. The server checks every request, and there are 88 tests.
+It works standalone or with QBCore, Qbox or ESX names and jobs. The server checks every request, and there are 89 tests.
 See [Prest_Sector-CAD](Prest_Sector-CAD/) for the roles, commands and setup.
 
 ![Prest_Sector CAD dispatch board](Prest_Sector-CAD/docs/cad-dispatch.png)
+
+## Prest_Sector Radar
+A traffic radar and plate reader for police cars:
+- Front and rear antennas read the closest car and the fastest one. Each can be set to same direction, opposite or both.
+- Your patrol speed, a fast limit with an alarm, lock keys, and an optional lock on fast.
+- Front and rear plate cameras check every plate against [Prest_Sector CAD](Prest_Sector-CAD/) (BOLOs, stolen cars, owners with warrants) and a `/hotlist`.
+- A hit flashes red with an alarm, and one key opens it on the CAD tablet.
+- A remote for the settings, and a console you can drag anywhere and resize.
+
+The server decides who can use it and limits how often plates are checked. There are 68 tests.
+See [Prest_Sector-Radar](Prest_Sector-Radar/) for the keys, commands and setup.
+
+![Prest_Sector Radar with a plate reader hit](Prest_Sector-Radar/docs/radar-hit.png)
 
 ## Original v1 scripts
 The first versions are still in the repo for comparison: `adminmenu!`, `ServerAdminConfig` and `Serverlua` (Admin Menu v1), `ELS-LIGHTING`, `Iowa Police-Skin!`, `Vheicle-Skins` and `vehicle-spawn`.
@@ -90,7 +103,7 @@ ensure preston-vehicleskins
 ensure preston-iowapolice
 ensure Prest_Sector-Cuffs
 ensure Prest_Sector-CAD
-ensure scriptname
+ensure Prest_Sector-Radar
 
 add_ace group.admin adminmenu allow
 add_ace group.admin vehiclespawn.staff allow
@@ -99,6 +112,7 @@ add_ace group.admin iowapolice.use allow
 add_ace group.admin cuffs.use allow
 add_ace group.admin cuffs.adjust allow
 add_ace group.admin cad.admin allow
+add_ace group.admin radar.use allow
 add_principal identifier.license:YOUR_LICENSE group.admin
 ```
 

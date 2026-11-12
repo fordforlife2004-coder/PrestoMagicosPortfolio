@@ -1,0 +1,292 @@
+/* Prest_Sector Radar: the console and its remote. The game shows this page over the screen, so the page
+   itself is see-through; only the console and the remote draw anything. */
+
+:root {
+  --panel: #0f1216;
+  --panel-2: #161b21;
+  --bezel: #2a313a;
+  --line: #262d36;
+  --text: #d7dde4;
+  --muted: #7d8794;
+  --red: #ff3b30;
+  --amber: #ffb020;
+  --green: #36e07a;
+  --blue: #4aa8ff;
+  --unlit: rgba(255, 255, 255, 0.05);
+  --scale: 1;
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font);
+  color: var(--text);
+  user-select: none;
+}
+
+/* ------------------------------------------------------------------ the console */
+
+.radar {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  transform: scale(var(--scale));
+  transform-origin: bottom right;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55));
+}
+.radar.placed { right: auto; bottom: auto; transform-origin: top left; }
+.radar.dragging { cursor: grabbing; }
+body.remote-open .radar { cursor: grab; outline: 1px dashed rgba(74, 168, 255, 0.6); outline-offset: 4px; }
+
+.console {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--bezel);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.antenna {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px 8px;
+  background: #0a0c0f;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.antenna.off { opacity: 0.45; }
+
+.ant-head { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.ant-name { font-weight: 700; color: var(--text); }
+.ant-mode {
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--blue);
+  font-weight: 600;
+}
+.ant-readouts { display: flex; gap: 10px; align-items: flex-end; }
+
+.readout { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+.lamp {
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--unlit);
+}
+.lamp.on { color: #111; background: var(--amber); box-shadow: 0 0 10px rgba(255, 176, 32, 0.6); }
+
+/* Seven-segment digits, drawn in SVG by radar.js. */
+.digits { display: flex; gap: 3px; }
+.digits svg { display: block; }
+.digits .seg { fill: var(--unlit); transition: fill 80ms linear; }
+.target .digits .seg.lit { fill: var(--red); filter: drop-shadow(0 0 3px rgba(255, 59, 48, 0.8)); }
+.fast .digits .seg.lit { fill: var(--amber); filter: drop-shadow(0 0 3px rgba(255, 176, 32, 0.8)); }
+.patrol-speed .digits .seg.lit { fill: var(--green); filter: drop-shadow(0 0 3px rgba(54, 224, 122, 0.75)); }
+/* Only the reading that is over the limit flashes: the fast one when there is one, else the target. */
+.antenna.over-target .target .digits .seg.lit,
+.antenna.over-fast .fast .digits .seg.lit { animation: over 0.6s steps(2, jump-none) infinite; }
+
+@keyframes over { 50% { fill: #ffd9d6; } }
+
+.patrol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 2px 4px;
+  min-width: 112px;
+}
+.brand { display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.brand b { font-size: 11px; letter-spacing: 0.04em; }
+.brand span { font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); }
+.limit { display: flex; align-items: baseline; gap: 5px; font-size: 12px; }
+.limit b { font-size: 15px; color: var(--amber); font-variant-numeric: tabular-nums; }
+.units { font-size: 10px; color: var(--muted); }
+.lamp.fastlock { margin: 0; }
+
+/* ------------------------------------------------------------------ the plate reader */
+
+.plates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--bezel);
+  border-radius: 12px;
+}
+.plates.off { opacity: 0.45; }
+
+.camera {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 3px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #0a0c0f;
+  min-width: 0;
+}
+.cam-name { grid-column: 1 / 3; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.camera.locked .cam-name::after { content: "Locked"; color: #111; background: var(--amber); border-radius: 3px; padding: 0 4px; font-weight: 700; }
+
+/* A plate drawn like the game's own: the colors follow its plate style. */
+.plate {
+  width: 132px;
+  height: 34px;
+  padding: 0 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  border: 2px solid #c9ced6;
+  background: #f4f6f8;
+  color: #1c3f94;
+  font-family: "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+}
+.plate.style-1 { background: #111; color: #f5c518; border-color: #333; }
+.plate.style-2 { background: #1c3f94; color: #f5c518; border-color: #0f2a6b; }
+.plate.style-3 { background: #eef2f7; color: #0f3a8a; border-color: #97a4b8; }
+.plate.style-4 { background: #e9eef5; color: #20304f; border-color: #8995a8; }
+.plate.style-5 { background: #f1d97a; color: #0d2c6b; border-color: #b49b3a; }
+.plate.empty { background: transparent; border: 2px dashed var(--line); color: var(--muted); box-shadow: none; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; }
+
+.cam-status { width: 180px; min-width: 0; font-size: 11px; line-height: 1.3; color: var(--muted); }
+.cam-status b { display: block; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+.cam-status .reason { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.camera.clear .cam-status b { color: var(--green); }
+.camera.notice { border-color: rgba(255, 176, 32, 0.6); }
+.camera.notice .cam-status b { color: var(--amber); }
+.camera.hit { border-color: var(--red); animation: hit 0.9s ease-in-out infinite; }
+.camera.hit .cam-status b { color: var(--red); }
+.camera.hit .cam-status { color: #ffd9d6; }
+
+@keyframes hit { 50% { box-shadow: 0 0 0 2px rgba(255, 59, 48, 0.55), 0 0 18px rgba(255, 59, 48, 0.45); } }
+
+/* ------------------------------------------------------------------ the remote */
+
+.remote-wrap {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.remote {
+  pointer-events: auto;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 14px 16px 16px;
+  background: #13171c;
+  border: 1px solid var(--bezel);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.remote-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.remote-head b { display: block; font-size: 16px; }
+.remote-head .sub { font-size: 11px; color: var(--muted); }
+
+.group { padding: 10px 0; border-top: 1px solid var(--line); }
+.group h3 { margin: 0 0 8px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.row-label { width: 52px; font-size: 13px; color: var(--muted); }
+.hint { font-size: 11px; color: var(--muted); flex: 1; min-width: 160px; }
+.big { font-size: 26px; font-weight: 700; min-width: 48px; text-align: center; color: var(--amber); font-variant-numeric: tabular-nums; }
+.value { min-width: 40px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+input[type="range"] { flex: 1; accent-color: var(--blue); }
+
+.btn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--bezel);
+  background: #1c222a;
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover { background: #232a33; }
+.btn:focus-visible, .seg button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.btn.ghost { background: transparent; }
+.btn.danger { color: #ff8a80; border-color: rgba(255, 59, 48, 0.4); }
+.btn.toggle.on { background: rgba(54, 224, 122, 0.14); border-color: rgba(54, 224, 122, 0.6); color: var(--green); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.step { min-width: 40px; }
+
+.seg { display: inline-flex; border: 1px solid var(--bezel); border-radius: 8px; overflow: hidden; }
+.seg button {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 0;
+  border-left: 1px solid var(--bezel);
+  background: #1c222a;
+  color: var(--muted);
+  cursor: pointer;
+}
+.seg button:first-child { border-left: 0; }
+.seg button.on { background: rgba(74, 168, 255, 0.16); color: var(--blue); font-weight: 700; }
+
+/* ------------------------------------------------------------------ the browser preview */
+
+body.is-preview {
+  background:
+    linear-gradient(180deg, rgba(10, 14, 20, 0.2), rgba(10, 14, 20, 0.85)),
+    repeating-linear-gradient(90deg, #2b3037 0 2px, transparent 2px 160px),
+    linear-gradient(180deg, #4b6b8f 0%, #8aa4bf 40%, #3a3f46 41%, #24282d 100%);
+}
+.preview-bar {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(15, 18, 22, 0.85);
+  border: 1px solid var(--bezel);
+  font-size: 13px;
+  color: var(--muted);
+}
+.preview-bar b { color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .camera.hit,
+  .antenna.over-target .target .digits .seg.lit,
+  .antenna.over-fast .fast .digits .seg.lit { animation: none; }
+}
